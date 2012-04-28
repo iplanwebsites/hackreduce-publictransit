@@ -130,7 +130,7 @@ public class StopTimesCountToGeoHash extends Configured implements Tool {
 			
 			
 			
-			context.write(key, new Text(hourarray +","+buscounter+","+precision));
+			context.write(new Text(""), new Text("{\"geohash\":\""+key+"\",\"precision\":"+precision+",\"freq\":{\"weekdays\":{\"total\":"+buscounter+",\"by_hour\":"+hourarray +"}}},"));
 	
 		}
 
