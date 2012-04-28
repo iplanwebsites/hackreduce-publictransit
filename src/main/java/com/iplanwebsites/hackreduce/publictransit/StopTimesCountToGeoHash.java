@@ -27,6 +27,8 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+import ch.hsr.geohash.GeoHash;
+
 
 /**
  * This MapReduce job will count the total number of NASDAQ or NYSE records stored within the
@@ -43,7 +45,7 @@ public class StopTimesCountToGeoHash extends Configured implements Tool {
 		TOTAL_KEYS,
 		UNIQUE_KEYS
 	}
-
+	public static int precision = 6;
 	public static HashMap<String, Location> stops;
 	
 	public static class RecordCounterMapper extends Mapper<LongWritable, Text, Text, Text> {
@@ -67,34 +69,33 @@ public class StopTimesCountToGeoHash extends Configured implements Tool {
 
 				String[] attributes = inputString.split(",");
 
-				if (attributes.length != 8)
+				if (attributes.length != 2)
 					throw new IllegalArgumentException("Input string given did not have 8 values in CSV format");
+			
+				String data = inputString;
+				String hourKey, stopKey, stopCount;
+				StringTokenizer tokenizer = new StringTokenizer(data, ":,");
+				// while (tokenizer.hasMoreTokens()) {
+				hourKey = tokenizer.nextToken().trim();
+				stopKey = tokenizer.nextToken().trim();
+				stopCount = tokenizer.nextToken().trim();
+				Location loc = stops.get(stopKey);
 
-//				try {
-//					String exchange = attributes[0];
-//					String stockSymbol = attributes[1];
-//					Date date = sdf.parse(attributes[2]);
-//					double stockPriceOpen = Double.parseDouble(attributes[3]);
-//					double stockPriceHigh = Double.parseDouble(attributes[4]);
-//					double stockPriceLow = Double.parseDouble(attributes[5]);
-//					double stockPriceClose = Double.parseDouble(attributes[6]);
-//					int stockVolume = Integer.parseInt(attributes[7]);
-//					double stockPriceAdjClose = Double.parseDouble(attributes[8]);
-//				} catch (ParseException e) {
-//					throw new IllegalArgumentException("Input string contained an unknown value that couldn't be parsed");
-//				} catch (NumberFormatException e) {
-//					throw new IllegalArgumentException("Input string contained an unknown number value that couldn't be parsed");
-//				}
+				GeoHash hash = GeoHash.withCharacterPrecision(Double.parseDouble(loc.latitude), Double.parseDouble(loc.longitude), precision);
+				String hashKey = hash.toBase32();
+				int hour = Integer.parseInt(hourKey);
+				int count = Integer.parseInt(stopCount);
 				
-				context.write(new Text("hi"), new Text("there"));//TOOD change to text value 
+				
+				
+				context.write(new Text(hashKey+":"+hour), new Text(count +","+precision));//TOOD change to text value 
+				System.out.println(new Text(hashKey+":"+hour).toString() + new Text(count +","+precision).toString());
 			} catch (Exception e) {
 				context.getCounter(Count.RECORDS_SKIPPED).increment(1);
 				return;
 			}
-			String precision = "6";
 		
 			context.getCounter(Count.TOTAL_KEYS).increment(1);
-			context.write(new Text("hi"), new Text("again"));
 		}
 
 	}
@@ -145,7 +146,7 @@ public class StopTimesCountToGeoHash extends Configured implements Tool {
 		job.setOutputValueClass(Text.class);
 
 		// Setting the input folder of the job 
-		FileInputFormat.addInputPath(job, new Path(args[1]));
+		FileInputFormat.addInputPath(job, new Path(args[0]));
 
 		// Preparing the output folder by first deleting it if it exists
         Path output = new Path(args[2]);
@@ -153,7 +154,7 @@ public class StopTimesCountToGeoHash extends Configured implements Tool {
 	    FileOutputFormat.setOutputPath(job, output);
 
 	    //Change output format to binary to protect against tabs in json
-	    job.setOutputFormatClass(SequenceFileOutputFormat.class);
+	    //job.setOutputFormatClass(SequenceFileOutputFormat.class);
 	    
 		return job.waitForCompletion(true) ? 0 : 1;
 	}
