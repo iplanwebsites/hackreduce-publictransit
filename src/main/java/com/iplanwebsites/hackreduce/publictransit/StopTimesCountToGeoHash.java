@@ -58,24 +58,24 @@ public class StopTimesCountToGeoHash extends Configured implements Tool {
 
 				String[] attributes = inputString.split(",");
 
-				if (attributes.length != 9)
-					throw new IllegalArgumentException("Input string given did not have 9 values in CSV format");
+				if (attributes.length != 8)
+					throw new IllegalArgumentException("Input string given did not have 8 values in CSV format");
 
-				try {
-					String exchange = attributes[0];
-					String stockSymbol = attributes[1];
-					Date date = sdf.parse(attributes[2]);
-					double stockPriceOpen = Double.parseDouble(attributes[3]);
-					double stockPriceHigh = Double.parseDouble(attributes[4]);
-					double stockPriceLow = Double.parseDouble(attributes[5]);
-					double stockPriceClose = Double.parseDouble(attributes[6]);
-					int stockVolume = Integer.parseInt(attributes[7]);
-					double stockPriceAdjClose = Double.parseDouble(attributes[8]);
-				} catch (ParseException e) {
-					throw new IllegalArgumentException("Input string contained an unknown value that couldn't be parsed");
-				} catch (NumberFormatException e) {
-					throw new IllegalArgumentException("Input string contained an unknown number value that couldn't be parsed");
-				}
+//				try {
+//					String exchange = attributes[0];
+//					String stockSymbol = attributes[1];
+//					Date date = sdf.parse(attributes[2]);
+//					double stockPriceOpen = Double.parseDouble(attributes[3]);
+//					double stockPriceHigh = Double.parseDouble(attributes[4]);
+//					double stockPriceLow = Double.parseDouble(attributes[5]);
+//					double stockPriceClose = Double.parseDouble(attributes[6]);
+//					int stockVolume = Integer.parseInt(attributes[7]);
+//					double stockPriceAdjClose = Double.parseDouble(attributes[8]);
+//				} catch (ParseException e) {
+//					throw new IllegalArgumentException("Input string contained an unknown value that couldn't be parsed");
+//				} catch (NumberFormatException e) {
+//					throw new IllegalArgumentException("Input string contained an unknown number value that couldn't be parsed");
+//				}
 			} catch (Exception e) {
 				context.getCounter(Count.RECORDS_SKIPPED).increment(1);
 				return;
