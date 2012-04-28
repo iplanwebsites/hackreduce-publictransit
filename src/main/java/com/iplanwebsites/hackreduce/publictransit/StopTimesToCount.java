@@ -59,8 +59,8 @@ public class StopTimesToCount extends Configured implements Tool {
 
 				String[] attributes = inputString.split(",");
 
-				if ((attributes.length != 7) || (attributes.length != 9) || (attributes.length != 8))
-					throw new IllegalArgumentException("Input string given did not have 9 values in CSV format");
+				//if (!((attributes.length == 9) || (attributes.length == 9) || (attributes.length == 8)))
+				//	throw new IllegalArgumentException("Input string given did not have 9 values in CSV format");
 
 				try {
 					//String trip_id = attributes[0];
