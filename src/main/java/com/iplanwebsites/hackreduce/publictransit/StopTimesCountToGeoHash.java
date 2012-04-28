@@ -16,6 +16,7 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -26,6 +27,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.hackreduce.examples.bixi.Squasher.Count;
 
 import ch.hsr.geohash.GeoHash;
 
@@ -74,7 +76,7 @@ public class StopTimesCountToGeoHash extends Configured implements Tool {
 			
 				String data = inputString;
 				String hourKey, stopKey, stopCount;
-				StringTokenizer tokenizer = new StringTokenizer(data, ":,");
+				StringTokenizer tokenizer = new StringTokenizer(data, ";,");
 				// while (tokenizer.hasMoreTokens()) {
 				hourKey = tokenizer.nextToken().trim();
 				stopKey = tokenizer.nextToken().trim();
@@ -88,8 +90,8 @@ public class StopTimesCountToGeoHash extends Configured implements Tool {
 				
 				
 				
-				context.write(new Text(hashKey+":"+hour), new Text(count +","+precision));//TOOD change to text value 
-				System.out.println(new Text(hashKey+":"+hour).toString() + new Text(count +","+precision).toString());
+				context.write(new Text(hashKey+":"+hour), new Text(count+""));//TOOD change to text value 
+				System.out.println(new Text(hashKey+":"+hour).toString() + count);
 			} catch (Exception e) {
 				context.getCounter(Count.RECORDS_SKIPPED).increment(1);
 				return;
@@ -106,11 +108,14 @@ public class StopTimesCountToGeoHash extends Configured implements Tool {
 		protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 			context.getCounter(Count.UNIQUE_KEYS).increment(1);
 
+			Integer buscounter = 0;
 			/*TODO geohash  iterate values */
-			
-			
-
-			context.write(key, new Text("output"));
+			for (Text value : values) {
+				Integer count = Integer.decode(value.toString());
+				buscounter += count;
+				context.write(key, new Text(buscounter.toString()));
+			}
+	
 		}
 
 	}
