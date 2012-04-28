@@ -107,7 +107,7 @@ public class StopTimesCountToGeoHash extends Configured implements Tool {
 	public int run(String[] args) throws Exception {
 		Configuration conf = getConf();
 
-        if (args.length != 2) {
+        if (args.length != 3) {
         	System.err.println("Usage: " + getClass().getName() + " <input> <output>");
         	System.exit(2);
         }
@@ -121,7 +121,7 @@ public class StopTimesCountToGeoHash extends Configured implements Tool {
         job.setMapperClass(RecordCounterMapper.class);
 		job.setReducerClass(RecordCounterReducer.class);
 
-		// The Nasdaq/NYSE data dumps comes in as a CSV file (text input), so we configure
+		// The GTFS data dumps comes in as a CSV file (text input), so we configure
 		// the job to use this format.
 		job.setInputFormatClass(TextInputFormat.class);
 
@@ -134,10 +134,10 @@ public class StopTimesCountToGeoHash extends Configured implements Tool {
 		job.setOutputValueClass(LongWritable.class);
 
 		// Setting the input folder of the job 
-		FileInputFormat.addInputPath(job, new Path(args[0]));
+		FileInputFormat.addInputPath(job, new Path(args[1]));
 
 		// Preparing the output folder by first deleting it if it exists
-        Path output = new Path(args[1]);
+        Path output = new Path(args[2]);
         FileSystem.get(conf).delete(output, true);
 	    FileOutputFormat.setOutputPath(job, output);
 
