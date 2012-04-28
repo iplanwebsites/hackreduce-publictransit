@@ -42,6 +42,7 @@ public class StopTimesToCount extends Configured implements Tool {
 		// Our own made up key to send all counts to a single Reducer, so we can
 		// aggregate a total value.
 		public static final Text TOTAL_COUNT = new Text("total");
+		public static final Text TOTAL_SKIPPED = new Text("skipped");
 
 		// Just to save on object instantiation
 		public static final LongWritable ONE_COUNT = new LongWritable(1);
@@ -58,31 +59,44 @@ public class StopTimesToCount extends Configured implements Tool {
 
 				String[] attributes = inputString.split(",");
 
-				if (attributes.length != 9)
+				if (attributes.length != 7)
 					throw new IllegalArgumentException("Input string given did not have 9 values in CSV format");
 
 				try {
-					String exchange = attributes[0];
-					String stockSymbol = attributes[1];
-					Date date = sdf.parse(attributes[2]);
-					double stockPriceOpen = Double.parseDouble(attributes[3]);
-					double stockPriceHigh = Double.parseDouble(attributes[4]);
-					double stockPriceLow = Double.parseDouble(attributes[5]);
-					double stockPriceClose = Double.parseDouble(attributes[6]);
-					int stockVolume = Integer.parseInt(attributes[7]);
-					double stockPriceAdjClose = Double.parseDouble(attributes[8]);
-				} catch (ParseException e) {
-					throw new IllegalArgumentException("Input string contained an unknown value that couldn't be parsed");
+					//String trip_id = attributes[0];
+					String arrival_time = attributes[1];
+					String stop_id = attributes[3];
+					//String stop_sequence = attributes[3];
+					//String pickup_type = attributes[4];
+					//String drop_off_type = attributes[5];
+					String hour = arrival_time.split(":")[0];
+					String mapKey = hour + "-" + stop_id;
+					//context.getCounter(new Text(mapKey)).increment(1);
+					context.write(new Text(mapKey), ONE_COUNT);
+
+					//String exchange = attributes[0];
+					//String stockSymbol = attributes[1];
+					//Date date = sdf.parse(attributes[2]);
+					//double stockPriceOpen = Double.parseDouble(attributes[3]);
+					//double stockPriceHigh = Double.parseDouble(attributes[4]);
+					//double stockPriceLow = Double.parseDouble(attributes[5]);
+					//double stockPriceClose = Double.parseDouble(attributes[6]);
+					//int stockVolume = Integer.parseInt(attributes[7]);
+					//double stockPriceAdjClose = Double.parseDouble(attributes[8]);
+				//} catch (ParseException e) {
+				//	throw new IllegalArgumentException("Input string contained an unknown value that couldn't be parsed");
 				} catch (NumberFormatException e) {
 					throw new IllegalArgumentException("Input string contained an unknown number value that couldn't be parsed");
 				}
 			} catch (Exception e) {
-				context.getCounter(Count.RECORDS_SKIPPED).increment(1);
+				//context.getCounter(Count.RECORDS_SKIPPED).increment(1);
+				context.write(TOTAL_SKIPPED, ONE_COUNT);
 				return;
 			}
 
-			context.getCounter(Count.TOTAL_KEYS).increment(1);
+			//context.getCounter(Count.TOTAL_KEYS).increment(1);
 			context.write(TOTAL_COUNT, ONE_COUNT);
+			//context.write(TOTAL_COUNT, ONE_COUNT);
 		}
 
 	}
@@ -91,7 +105,7 @@ public class StopTimesToCount extends Configured implements Tool {
 
 		@Override
 		protected void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
-			context.getCounter(Count.UNIQUE_KEYS).increment(1);
+			//context.getCounter(Count.UNIQUE_KEYS).increment(1);
 
 			long count = 0;
 			for (LongWritable value : values) {
