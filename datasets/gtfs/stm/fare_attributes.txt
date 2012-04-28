@@ -1,0 +1,3 @@
+﻿fare_id,price,currency_type,payment_method,transfers,transfer_duration
+tarif_regulier,3.00,CAD,0,,7200
+tarif_747,8.00,CAD,0,,7200
