@@ -69,14 +69,10 @@ public class StopTimesCountToGeoHash extends Configured implements Tool {
 			try {
 				// This code is copied from the constructor of StockExchangeRecord
 
-				String[] attributes = inputString.split(",");
-
-				if (attributes.length != 2)
-					throw new IllegalArgumentException("Input string given did not have 8 values in CSV format");
-			
+				
 				String data = inputString;
 				String hourKey, stopKey, stopCount;
-				StringTokenizer tokenizer = new StringTokenizer(data, ";,");
+				StringTokenizer tokenizer = new StringTokenizer(data, ":\t");
 				// while (tokenizer.hasMoreTokens()) {
 				hourKey = tokenizer.nextToken().trim();
 				stopKey = tokenizer.nextToken().trim();
@@ -131,6 +127,9 @@ public class StopTimesCountToGeoHash extends Configured implements Tool {
 				hourarray += hours[i];
 			}
 			hourarray += "]";
+			
+			
+			
 			context.write(key, new Text(hourarray +","+buscounter+","+precision));
 	
 		}
