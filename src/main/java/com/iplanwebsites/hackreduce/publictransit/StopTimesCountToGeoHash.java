@@ -90,8 +90,8 @@ public class StopTimesCountToGeoHash extends Configured implements Tool {
 				
 				
 				
-				context.write(new Text(hashKey+":"+hour), new Text(count+""));//TOOD change to text value 
-				System.out.println(new Text(hashKey+":"+hour).toString() + count);
+				context.write(new Text(hashKey), new Text( hour+","+count));//TOOD change to text value 
+				
 			} catch (Exception e) {
 				context.getCounter(Count.RECORDS_SKIPPED).increment(1);
 				return;
@@ -109,12 +109,29 @@ public class StopTimesCountToGeoHash extends Configured implements Tool {
 			context.getCounter(Count.UNIQUE_KEYS).increment(1);
 
 			Integer buscounter = 0;
+			int[] hours = new int[24];
 			/*TODO geohash  iterate values */
 			for (Text value : values) {
-				Integer count = Integer.decode(value.toString());
+				String[] valueparts = value.toString().split(",");
+				if(valueparts.length < 2){
+					continue;
+				}
+				
+				hours[Integer.parseInt(valueparts[0])] += Integer.parseInt(valueparts[1]);
+				Integer count = Integer.parseInt(valueparts[1]);
 				buscounter += count;
-				context.write(key, new Text(buscounter.toString()));
+				
 			}
+			
+			String hourarray = "[";
+			for (int i =0; i < hours.length; i++){
+				if(i != 0){
+					hourarray += ",";
+				}
+				hourarray += hours[i];
+			}
+			hourarray += "]";
+			context.write(key, new Text(hourarray +","+buscounter+","+precision));
 	
 		}
 
