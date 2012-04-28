@@ -70,7 +70,12 @@ public class StopTimesToCount extends Configured implements Tool {
 					//String pickup_type = attributes[4];
 					//String drop_off_type = attributes[5];
 					String hour = arrival_time.split(":")[0];
-					String mapKey = hour + "-" + stop_id;
+					int h = Integer.parseInt(hour);
+					if (h > 23) {
+						h -= 23;
+						hour = "0" + h;
+					}
+					String mapKey = hour + ":" + stop_id;
 					//context.getCounter(new Text(mapKey)).increment(1);
 					context.write(new Text(mapKey), ONE_COUNT);
 
