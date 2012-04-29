@@ -1,8 +1,11 @@
 #!/bin/bash
 rm -rf output
+mkdir output
+mkdir output/gtfs_stoptimecounts
 mkdir output/gtfs_stoptimecounts/washington
 mkdir output/gtfs_stoptimecounts/san-fran
 mkdir output/gtfs_stoptimecounts/torontogo
+mkdir output/gtfs_geohash
 mkdir output/gtfs_geohash/washington
 mkdir output/gtfs_geohash/torontogo
 mkdir output/gtfs_geohash/san-fran
